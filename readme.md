@@ -40,10 +40,10 @@ This project has been forked from https://github.com/publiux/laravelcdn. All cre
 
 #### Via Composer
 
-Require `publiux/laravelcdn` in your project:
+Require `hasfoug/laravelcdn` in your project:
 
 ```bash
-composer require "publiux/laravelcdn:~2.0"
+composer require "hasfoug/laravelcdn"
 ```
 
 *If you are using Laravel 5.4 or below, you need to register the service provider:*

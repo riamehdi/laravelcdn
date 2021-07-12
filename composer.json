@@ -1,5 +1,5 @@
 {
-    "name": "publiux/laravelcdn",
+    "name": "hasfoug/laravelcdn",
     "description": "Content Delivery Network (CDN) Package for Laravel",
     "license": "MIT",
     "keywords": [
@@ -15,8 +15,8 @@
     ],
     "authors": [
         {
-            "name": "Raul Ruiz",
-            "email": "publiux@gmail.com"
+            "name": "Bohdan Klochko",
+            "email": "bohdanklochko1@gmail.com"
         }
     ],
     "require": {
