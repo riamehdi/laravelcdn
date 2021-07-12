@@ -194,8 +194,6 @@ class AwsS3Provider extends Provider implements ProviderInterface
                         'Metadata' => $this->default['providers']['aws']['s3']['metadata'],
                         'Expires' => $this->default['providers']['aws']['s3']['expires'],
                     ]);
-//                var_dump(get_class($command));exit();
-
 
                     $this->s3_client->execute($command);
                 } catch (S3Exception $e) {
@@ -276,6 +274,10 @@ class AwsS3Provider extends Provider implements ProviderInterface
 
         $assets->transform(function ($item, $key) use (&$filesOnAWS) {
             $fileOnAWS = $filesOnAWS->get(str_replace('\\', '/', $item->getPathName()));
+
+            if (!$fileOnAWS) {
+                return $item;
+            }
 
             //select to upload files that are different in size AND last modified time.
             if (!($item->getMTime() === $fileOnAWS['LastModified']) && !($item->getSize() === $fileOnAWS['Size'])) {
