@@ -2,6 +2,8 @@
 
 namespace Publiux\laravelcdn\Providers;
 
+use Aws\AwsClient;
+use Aws\CloudFront\CloudFrontClient;
 use Aws\S3\BatchDelete;
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
@@ -56,6 +58,7 @@ class AwsS3Provider extends Provider implements ProviderInterface
                     'cloudfront' => [
                         'use' => false,
                         'cdn_url' => null,
+                        'distribution_id' => null,
                     ],
                 ],
             ],
@@ -80,6 +83,9 @@ class AwsS3Provider extends Provider implements ProviderInterface
      * @var Instance of Aws\S3\S3Client
      */
     protected $s3_client;
+
+    /** @var CloudFrontClient */
+    protected $cloudfrontClient;
 
     /**
      * @var Instance of Guzzle\Batch\BatchBuilder
@@ -140,6 +146,7 @@ class AwsS3Provider extends Provider implements ProviderInterface
             'acl' => $this->default['providers']['aws']['s3']['acl'],
             'cloudfront' => $this->default['providers']['aws']['s3']['cloudfront']['use'],
             'cloudfront_url' => $this->default['providers']['aws']['s3']['cloudfront']['cdn_url'],
+            'cloudfront_distribution_id' => $this->default['providers']['aws']['s3']['cloudfront']['distribution_id'],
             'http' => $this->default['providers']['aws']['s3']['http'],
             'upload_folder' => $this->default['providers']['aws']['s3']['upload_folder']
         ];
@@ -237,6 +244,11 @@ class AwsS3Provider extends Provider implements ProviderInterface
                     ]
                 )
             );
+
+            $this->setCloudFrontClient(new CloudFrontClient([
+                'version' => $this->supplier['version'],
+                'region' => $this->supplier['region'],
+            ]));
         } catch (\Exception $e) {
             $this->console->writeln('<fg=red>Connection error: '.$e->getMessage().'</fg=red>');
             return false;
@@ -254,6 +266,14 @@ class AwsS3Provider extends Provider implements ProviderInterface
     }
 
     /**
+     * @param CloudFrontClient $cloudfrontClient
+     */
+    public function setCloudFrontClient($cloudfrontClient)
+    {
+        $this->cloudfrontClient = $cloudfrontClient;
+    }
+
+    /**
      * @param $assets
      * @return mixed
      */
@@ -263,6 +283,7 @@ class AwsS3Provider extends Provider implements ProviderInterface
 
         $files = $this->s3_client->listObjects([
             'Bucket' => $this->getBucket(),
+            'Prefix' => $this->supplier['upload_folder'],
         ]);
 
         if (!$files['Contents']) {
@@ -280,14 +301,18 @@ class AwsS3Provider extends Provider implements ProviderInterface
         }
 
         $assets->transform(function ($item, $key) use (&$filesOnAWS) {
-            $fileOnAWS = $filesOnAWS->get(str_replace('\\', '/', $item->getPathName()));
+            $fileOnAWS = $filesOnAWS->get($this->getFileKey($item));
 
-            if (!$fileOnAWS) {
+            if (! $fileOnAWS) {
                 return $item;
             }
 
             //select to upload files that are different in size AND last modified time.
-            if (!($item->getMTime() === $fileOnAWS['LastModified']) && !($item->getSize() === $fileOnAWS['Size'])) {
+            if (! ($item->getSize() == $fileOnAWS['Size'])) {
+                if ($this->getCloudFront() === true) {
+                    $this->invalidateFileCloudfront($fileOnAWS);
+                }
+
                 return $item;
             }
         });
@@ -297,6 +322,23 @@ class AwsS3Provider extends Provider implements ProviderInterface
         });
 
         return $assets;
+    }
+
+    /**
+     * @param array $file
+     */
+    private function invalidateFileCloudfront($file)
+    {
+        $this->cloudfrontClient->createInvalidation([
+            'DistributionId' => $this->supplier['cloudfront_distribution_id'],
+            'InvalidationBatch' => [
+                'CallerReference' => uniqid(),
+                'Paths' => [
+                    'Items' => ['/' . $file['Key']],
+                    'Quantity' => 1,
+                ]
+            ]
+        ]);
     }
 
     /**

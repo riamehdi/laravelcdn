@@ -180,6 +180,7 @@ return [
                 'cloudfront'    => [
                     'use'     => env('CDN_UseCloudFront', false),
                     'cdn_url' => env('CDN_CloudFrontUrl', ''),
+                    'distribution_id' => env('CLOUDFRONT_DISTRIBUTION_ID'),
                 ],
 
                 /*
