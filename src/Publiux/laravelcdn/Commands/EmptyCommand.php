@@ -53,6 +53,12 @@ class EmptyCommand extends Command
      */
     public function handle()
     {
+        if (! $this->confirm('Are you sure? This will erase the whole bucket!')) {
+            return 0;
+        }
+
         $this->cdn->emptyBucket();
+
+        return 0;
     }
 }

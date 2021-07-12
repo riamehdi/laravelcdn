@@ -54,5 +54,7 @@ class PushCommand extends Command
     public function handle()
     {
         $this->cdn->push();
+
+        return 0;
     }
 }
