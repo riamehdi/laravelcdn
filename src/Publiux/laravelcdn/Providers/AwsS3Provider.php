@@ -215,7 +215,7 @@ class AwsS3Provider extends Provider implements ProviderInterface
     private function getFileKey($file)
     {
         return $this->supplier['upload_folder']
-            . str_replace(['\\', 'public/'], '/', $file->getPathName());
+            . str_replace('\\', '/', $file->getPathName());
     }
 
     /**
@@ -385,7 +385,7 @@ class AwsS3Provider extends Provider implements ProviderInterface
         $bucket = $this->getBucket();
         $bucket = (!empty($bucket)) ? $bucket.'.' : '';
 
-        return $url['scheme'] . '://' . $bucket . $url['host'] . '/' . $path;
+        return $url['scheme'] . '://' . $bucket . $url['host']. '/'. $this->supplier['upload_folder'] . '/' . $path;
     }
 
     /**
