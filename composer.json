@@ -20,9 +20,9 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9",
-      "illuminate/support": "^8",
-      "illuminate/config": "^8",
+      "php": ">=5.5.9",
+      "illuminate/support": "^8|^9",
+      "illuminate/config": "^8|^9",
       "symfony/finder": "^5",
       "symfony/console": "^5",
       "aws/aws-sdk-php": "~3.0"
