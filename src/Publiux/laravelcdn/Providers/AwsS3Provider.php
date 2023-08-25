@@ -419,7 +419,7 @@ class AwsS3Provider extends Provider implements ProviderInterface
         if ($this->getCloudFront() === true) {
             $url = $this->cdn_helper->parseUrl($this->getCloudFrontUrl());
 
-            return $url['scheme'] . '://' . $url['host'] . '/'. $this->supplier['upload_folder'] . '/' . $path;
+            return $url['scheme'] . '://' . $url['host'] . $this->supplier['upload_folder'] . '/' . $path;
         }
 
         $url = $this->cdn_helper->parseUrl($this->getUrl());
@@ -427,7 +427,7 @@ class AwsS3Provider extends Provider implements ProviderInterface
         $bucket = $this->getBucket();
         $bucket = (!empty($bucket)) ? $bucket.'.' : '';
 
-        return $url['scheme'] . '://' . $bucket . $url['host']. '/'. $this->supplier['upload_folder'] . '/' . $path;
+        return $url['scheme'] . '://' . $bucket . $url['host']. $this->supplier['upload_folder'] . '/' . $path;
     }
 
     /**

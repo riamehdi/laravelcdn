@@ -92,7 +92,7 @@ class CdnFacade implements CdnFacadeInterface
     public function asset($path)
     {
         // if asset always append the public/ dir to the path (since the user should not add public/ to asset)
-        return $this->generateUrl($path, 'public/');
+        return $this->generateUrl($path);
     }
 
     /**
