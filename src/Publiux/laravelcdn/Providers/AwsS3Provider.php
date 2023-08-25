@@ -222,7 +222,6 @@ class AwsS3Provider extends Provider implements ProviderInterface
     private function getFileKey($file)
     {
         return $this->supplier['upload_folder']
-            . '/'
             . str_replace('\\', '/', $file->getPathName());
     }
 
